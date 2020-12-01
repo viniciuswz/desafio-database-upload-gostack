@@ -21,9 +21,13 @@ class ImportTransactionsService {
     const transactions: TransactionsFile[] = [];
     const transactionsProcessed: Transaction[] = [];
     console.log('1');
-    await new Promise.all(resolve => {
-      files.forEach(item => {
-        fs.createReadStream(item.path)
+
+      // new Promise(resolve =>{
+      //   return resolve();
+      // });
+      const readFiles = await Promise.all(files.map(async item =>
+        new Promise (resolve =>{
+          fs.createReadStream(item.path)
           .pipe(csv({ from_line: 2 }))
           .on('data', async data => {
             const [title, type, value, category] = data;
@@ -33,27 +37,28 @@ class ImportTransactionsService {
               value: value.trim(),
               category: category.trim(),
             };
-            transactions.push(transaction);
-            console.log(resolve);
-            return resolve;
-          });
-      });
-    });
+            // console.log(transaction)
+            resolve(transactions.push(transaction));
+          })
+        })
+      ))
+
+
 
     // .on('end', async () => {
     //   return resolve;
     // });
-
-    console.log('merdsa', transactions);
+      console.log('123123',readFiles)
+    console.log('2', transactions);
 
     console.log('3');
-    await transactions.forEach(async transaction => {
-      console.log('jaca', transaction);
+    //await transactions.forEach(async transaction => {
+      //console.log('jaca', transaction);
       // const response = await createTransactionService.execute(
       //   transaction,
       // );
       // transactionsProcessed.push(response);
-    });
+    //});
     // const response = await createTransactionService.execute(transaction);
     return transactionsProcessed;
   }
