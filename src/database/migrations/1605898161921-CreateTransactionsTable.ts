@@ -16,6 +16,10 @@ export default class CreateCategoryTable1605898161921
             default: 'uuid_generate_v4()',
           },
           {
+            name: 'title',
+            type: 'varchar',
+          },
+          {
             name: 'type',
             type: 'varchar',
           },
