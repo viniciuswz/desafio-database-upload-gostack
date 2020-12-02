@@ -20,47 +20,41 @@ class ImportTransactionsService {
     const createTransactionService = new CreateTransactionService();
     const transactions: TransactionsFile[] = [];
     const transactionsProcessed: Transaction[] = [];
-    console.log('1');
 
-      // new Promise(resolve =>{
-      //   return resolve();
-      // });
       const readFiles = await Promise.all(files.map(async item =>
-        new Promise (resolve =>{
+        await new Promise (resolve =>{
           fs.createReadStream(item.path)
           .pipe(csv({ from_line: 2 }))
           .on('data', async data => {
+            // console.log(data)
             const [title, type, value, category] = data;
             const transaction = {
               title: title.trim(),
               type: type.trim(),
-              value: value.trim(),
+              value: Number(value.trim()),
               category: category.trim(),
             };
-            // console.log(transaction)
-            resolve(transactions.push(transaction));
-          })
+             transactions.push(transaction);
+            // console.log(transactions);
+          }).on('end', async () => {
+              return resolve();
+            });
         })
-      ))
+      ));
 
 
+    const promiseDone = await Promise.all(transactions.map(async item => {
+        console.log('after');
+        const response = await new Promise<Transaction>(resolve => resolve(createTransactionService.execute(item)))
+        console.log('before');
+        return response;
 
-    // .on('end', async () => {
-    //   return resolve;
-    // });
-      console.log('123123',readFiles)
-    console.log('2', transactions);
+      })
+    );
+    console.log('----------------promiseDone',promiseDone);
 
-    console.log('3');
-    //await transactions.forEach(async transaction => {
-      //console.log('jaca', transaction);
-      // const response = await createTransactionService.execute(
-      //   transaction,
-      // );
-      // transactionsProcessed.push(response);
-    //});
-    // const response = await createTransactionService.execute(transaction);
-    return transactionsProcessed;
+
+    return promiseDone;
   }
 }
 
