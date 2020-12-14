@@ -27,7 +27,7 @@ class ImportTransactionsService {
     await Promise.all(
       files.map(
         async item =>
-          new Promise(resolve => {
+          new Promise<void>(resolve => {
             fs.createReadStream(item.path)
               .pipe(csv({ from_line: 2 }))
               .on('data', async data => {
